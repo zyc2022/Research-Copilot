@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Research Copilot</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="mark">R</div>
+          <div>
+            <strong>Research Copilot</strong>
+            <span>Local RAG Agent</span>
+          </div>
+        </div>
+        <button id="newConversation" class="primary full">新建对话</button>
+        <div class="side-title">历史对话</div>
+        <div id="conversationList" class="conversation-list"></div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <button id="kbButton" class="ghost">知识库管理</button>
+          <div class="status-pill" id="statusPill">准备就绪</div>
+        </header>
+
+        <section id="chatMessages" class="chat"></section>
+
+        <form id="chatForm" class="composer">
+          <textarea id="messageInput" placeholder="向已启用知识库提问..." rows="1"></textarea>
+          <button class="send" type="submit">发送</button>
+        </form>
+      </main>
+    </div>
+
+    <button id="modelButton" class="model-fab">模型管理</button>
+
+    <dialog id="modelDialog" class="modal">
+      <form method="dialog" class="modal-card" id="modelForm">
+        <div class="modal-head">
+          <h2>模型管理</h2>
+          <button type="button" class="icon" data-close="modelDialog">×</button>
+        </div>
+        <label>Base URL<input id="modelBaseUrl" placeholder="https://api.deepseek.com" /></label>
+        <label>API Key<input id="modelApiKey" type="password" placeholder="sk-****" /></label>
+        <label>模型<input id="modelName" placeholder="deepseek-v4-flash" /></label>
+        <button class="primary" type="submit">保存模型配置</button>
+      </form>
+    </dialog>
+
+    <dialog id="kbDialog" class="modal wide">
+      <div class="modal-card">
+        <div class="modal-head">
+          <h2>知识库管理</h2>
+          <button type="button" class="icon" data-close="kbDialog">×</button>
+        </div>
+        <div class="kb-layout">
+          <section>
+            <div class="section-head">
+              <h3>知识库</h3>
+              <button id="showCreateKb" class="primary small">新建</button>
+            </div>
+            <div id="kbList" class="kb-list"></div>
+          </section>
+          <section class="kb-detail">
+            <div id="kbDetailEmpty" class="empty">选择一个知识库查看文档与导入文件。</div>
+            <div id="kbDetail" class="hidden">
+              <div class="detail-head">
+                <div>
+                  <h3 id="kbDetailTitle"></h3>
+                  <p id="kbDetailMeta"></p>
+                </div>
+                <label class="upload">
+                  上传 TXT/PDF
+                  <input id="documentUpload" type="file" accept=".txt,.pdf" />
+                </label>
+              </div>
+              <div id="documentList" class="doc-list"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="createKbDialog" class="modal">
+      <form method="dialog" class="modal-card" id="createKbForm">
+        <div class="modal-head">
+          <h2>新建知识库</h2>
+          <button type="button" class="icon" data-close="createKbDialog">×</button>
+        </div>
+        <label>名称<input id="kbName" required placeholder="例如：论文资料库" /></label>
+        <label>描述<textarea id="kbDescription" rows="3" placeholder="可选"></textarea></label>
+        <div class="hint">Embedding 创建后不可修改。留空 Base URL 并使用 local-hash 可本地运行。</div>
+        <label>Embedding Base URL<input id="embeddingBaseUrl" placeholder="可选，例如 https://api.openai.com/v1" /></label>
+        <label>Embedding API Key<input id="embeddingApiKey" type="password" placeholder="可选" /></label>
+        <label>Embedding 模型<input id="embeddingModel" value="local-hash" required /></label>
+        <button class="primary" type="submit">创建</button>
+      </form>
+    </dialog>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
