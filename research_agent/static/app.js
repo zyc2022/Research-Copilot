@@ -120,7 +120,7 @@ async function loadKnowledgeBases() {
       <p>${escapeHtml(kb.description || "无描述")}</p>
       <p>Embedding: ${escapeHtml(kb.embedding_model)} · 文档 ${kb.document_count} · 片段 ${kb.chunk_count}</p>
       <div class="kb-actions">
-        <label class="toggle"><input type="checkbox" ${kb.enabled ? "checked" : ""} />启用</label>
+        <button class="small toggle-kb ${kb.enabled ? "enabled" : "disabled"}">${kb.enabled ? "已启用" : "已禁用"}</button>
         <button class="small open">查看</button>
         <button class="small delete-kb">删除</button>
       </div>
@@ -131,9 +131,10 @@ async function loadKnowledgeBases() {
       await loadKnowledgeBases();
       await loadDocuments(kb.id);
     });
-    card.querySelector("input").addEventListener("change", async (event) => {
-      await api(`/knowledge-bases/${kb.id}/enabled?enabled=${event.target.checked}`, { method: "POST" });
-      setStatus(event.target.checked ? "知识库已启用" : "知识库已禁用");
+    card.querySelector(".toggle-kb").addEventListener("click", async () => {
+      const nextEnabled = !Boolean(kb.enabled);
+      await api(`/knowledge-bases/${kb.id}/enabled?enabled=${nextEnabled}`, { method: "POST" });
+      setStatus(nextEnabled ? "知识库已启用" : "知识库已禁用");
       await loadKnowledgeBases();
     });
     card.querySelector(".delete-kb").addEventListener("click", async () => {

@@ -36,6 +36,9 @@ def init_db() -> None:
             CREATE TABLE IF NOT EXISTS conversations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
+                summary TEXT NOT NULL DEFAULT '',
+                compressed_until_message_id INTEGER,
+                summary_updated_at TEXT,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
@@ -87,5 +90,26 @@ def init_db() -> None:
                 FOREIGN KEY (kb_id) REFERENCES knowledge_bases(id) ON DELETE CASCADE,
                 FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
             );
+
+            CREATE TABLE IF NOT EXISTS context_compressions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                conversation_id INTEGER NOT NULL,
+                from_message_id INTEGER NOT NULL,
+                to_message_id INTEGER NOT NULL,
+                original_text TEXT NOT NULL,
+                summary TEXT NOT NULL,
+                original_char_count INTEGER NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
+            );
             """
         )
+        _ensure_column(conn, "conversations", "summary", "TEXT NOT NULL DEFAULT ''")
+        _ensure_column(conn, "conversations", "compressed_until_message_id", "INTEGER")
+        _ensure_column(conn, "conversations", "summary_updated_at", "TEXT")
+
+
+def _ensure_column(conn: sqlite3.Connection, table: str, column: str, definition: str) -> None:
+    columns = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in columns:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")

@@ -211,6 +211,18 @@ button:hover, .upload:hover {
   padding: 4px 6px;
 }
 
+.toggle-kb.enabled {
+  color: #1d5b50;
+  background: #dff1ed;
+  border-color: #b7dcd4;
+}
+
+.toggle-kb.disabled {
+  color: #6f4a26;
+  background: #fff0db;
+  border-color: #efd2a8;
+}
+
 .model-fab {
   position: fixed;
   right: 28px;
@@ -317,14 +329,7 @@ input:focus, textarea:focus {
   flex-wrap: wrap;
 }
 
-.toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-}
-
-.toggle input, .upload input {
+.upload input {
   display: none;
 }
 

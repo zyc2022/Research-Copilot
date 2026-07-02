@@ -72,6 +72,57 @@ def get_messages(conversation_id: int) -> list[dict[str, Any]]:
         return result
 
 
+def get_conversation_context(conversation_id: int) -> dict[str, Any]:
+    with db() as conn:
+        row = conn.execute(
+            """
+            SELECT id, summary, compressed_until_message_id
+            FROM conversations
+            WHERE id = ?
+            """,
+            (conversation_id,),
+        ).fetchone()
+        if row is None:
+            raise ValueError("Conversation not found")
+        return row_to_dict(row)
+
+
+def save_context_compression(
+    conversation_id: int,
+    summary: str,
+    from_message_id: int,
+    to_message_id: int,
+    original_text: str,
+) -> None:
+    with db() as conn:
+        conn.execute(
+            """
+            INSERT INTO context_compressions
+            (conversation_id, from_message_id, to_message_id, original_text, summary, original_char_count)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                conversation_id,
+                from_message_id,
+                to_message_id,
+                original_text,
+                summary,
+                len(original_text),
+            ),
+        )
+        conn.execute(
+            """
+            UPDATE conversations
+            SET summary = ?,
+                compressed_until_message_id = ?,
+                summary_updated_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (summary, to_message_id, conversation_id),
+        )
+
+
 def add_message(conversation_id: int, role: str, content: str, citations: list[dict[str, Any]] | None = None) -> None:
     with db() as conn:
         conn.execute(
